@@ -8,6 +8,7 @@ class Campobase extends Component {
         this.state = {
             excursiones: EXCURSIONES
         };
+
     } render() {
         return (
             <Calendario excursiones={this.state.excursiones} />
