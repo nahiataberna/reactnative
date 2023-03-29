@@ -20,6 +20,8 @@ export default function App() {
     },
   });
 
+  
+
   return (
     <SafeAreaProvider>
       <View>
