@@ -4,8 +4,7 @@ import { COMENTARIOS } from '../comun/comentarios';
 import { EXCURSIONES } from '../comun/excursiones';
 import { StyleSheet } from 'react-native';
 import { ListItem } from '@rneui/base';
-import { Card } from '@rneui/themed';
-
+import { Card, Icon } from '@rneui/themed';
 
 function RenderComentario(props) {
     const renderComentariosItem = ({ item, index }) => {
@@ -60,9 +59,15 @@ function RenderExcursion(props) {
             <Card>
                 <Card.Image source={require('./imagenes/40Años.png')}></Card.Image>
                 <Card.Title style={styles.title}>{excursion.nombre}</Card.Title>
-                <Text style={{ margin: 20 }}>
+                < Text style={{ margin: 20 }}>
                     {excursion.descripcion}
                 </Text>
+                <Icon //raised
+                    reverse
+                    name={props.favorita ? 'heart' : 'heart-o'}
+                    type='font-awesome'
+                    color='#f50'
+                    onPress={() => props.favorita ? console.log('La excursión ya se encuentra entre las favoritas') : props.onPress()} />
             </Card>
         );
     }
@@ -76,16 +81,24 @@ class DetalleExcursion extends Component {
         super(props);
         this.state = {
             excursiones: EXCURSIONES,
-            comentarios: COMENTARIOS
+            comentarios: COMENTARIOS,
+            favoritos: []
         };
+    }
+
+    marcarFavorito(excursionId) {
+        this.setState({
+            favoritos: this.state.favoritos.concat(excursionId)
+        });
     }
 
     render() {
         const { excursionId } = this.props.route.params;
         return (
             <ScrollView>
-                <RenderExcursion excursion={this.state.excursiones[+excursionId]} />
+                <RenderExcursion excursion={this.state.excursiones[+excursionId]} onPress={() => this.marcarFavorito(excursionId)} favorita={this.state.favoritos.some(elemento => elemento === excursionId)} />
                 <RenderComentario comentarios={this.state.comentarios.filter((comentario) => comentario.excursionId === excursionId)} />
+
             </ScrollView>
         );
     }
