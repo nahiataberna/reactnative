@@ -4,17 +4,32 @@ import { Card } from '@rneui/themed';
 import { EXCURSIONES } from '../comun/excursiones';
 import { CABECERAS } from '../comun/cabeceras';
 import { ACTIVIDADES } from '../comun/actividades';
+import { StyleSheet } from 'react-native';
 
 function RenderItem(props) {
 
     const item = props.item;
+    const styles = StyleSheet.create({
+        title: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            color: 'chocolate',
+            padding: 10,
+            fontSize: 35,
+            fontWeight: 'bold',
+            textAlign: 'center',
+        },
+    });
 
     if (item != null) {
         return (
             <Card>
-                <Card.Title>{item.nombre}</Card.Title>
+
                 <Card.Divider />
                 <Card.Image source={require('./imagenes/40Años.png')}></Card.Image>
+                <Card.Title style={styles.title}>{item.nombre}</Card.Title>
                 <Text style={{ margin: 20 }}>
                     {item.descripcion}
                 </Text>
