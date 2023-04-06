@@ -1,8 +1,41 @@
 import React, { Component } from 'react';
-import { Text, View } from 'react-native';
-import { Card } from '@rneui/themed';
+import { Text, View, ScrollView, FlatList } from 'react-native';
+import { COMENTARIOS } from '../comun/comentarios';
 import { EXCURSIONES } from '../comun/excursiones';
 import { StyleSheet } from 'react-native';
+import { ListItem } from '@rneui/base';
+import { Card } from '@rneui/themed';
+
+
+function RenderComentario(props) {
+    const renderComentariosItem = ({ item, index }) => {
+        const parts = item.dia.split("T17");
+        const fecha = parts[0];
+        return (
+            <ListItem
+                key={index}
+                bottomDivider>
+                <ListItem.Content>
+                    <ListItem.Title>Valoración: {item.valoracion}</ListItem.Title>
+                    <ListItem.Subtitle>{item.comentario}</ListItem.Subtitle>
+                    <ListItem.Subtitle>{item.autor}  {fecha}</ListItem.Subtitle>
+                </ListItem.Content>
+            </ListItem>
+        );
+    };
+    const comentarios = props.comentarios;
+    return (
+        <Card>
+            <Card.Title>Comentarios</Card.Title>
+            <Card.Divider />
+            <FlatList
+                scrollEnabled={false}
+                data={comentarios}
+                renderItem={renderComentariosItem}
+                keyExtractor={item => item.id.toString()}
+            />
+        </Card>);
+}
 
 function RenderExcursion(props) {
 
@@ -42,13 +75,19 @@ class DetalleExcursion extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            excursiones: EXCURSIONES
+            excursiones: EXCURSIONES,
+            comentarios: COMENTARIOS
         };
     }
 
     render() {
         const { excursionId } = this.props.route.params;
-        return (<RenderExcursion excursion={this.state.excursiones[+excursionId]} />);
+        return (
+            <ScrollView>
+                <RenderExcursion excursion={this.state.excursiones[+excursionId]} />
+                <RenderComentario comentarios={this.state.comentarios.filter((comentario) => comentario.excursionId === excursionId)} />
+            </ScrollView>
+        );
     }
 }
 
