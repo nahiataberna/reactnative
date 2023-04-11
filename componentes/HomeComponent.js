@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { Text, ScrollView, View } from 'react-native';
 import { Card } from '@rneui/themed';
-import { EXCURSIONES } from '../comun/excursiones';
-import { CABECERAS } from '../comun/cabeceras';
-import { ACTIVIDADES } from '../comun/actividades';
 import { StyleSheet } from 'react-native';
+import axios from 'axios';
+
+import { baseUrl } from '../comun/comun';
 
 function RenderItem(props) {
 
@@ -26,9 +26,8 @@ function RenderItem(props) {
     if (item != null) {
         return (
             <Card>
-
                 <Card.Divider />
-                <Card.Image source={require('./imagenes/40Años.png')}></Card.Image>
+                <Card.Image source={{ uri: baseUrl + item.imagen }}></Card.Image>
                 <Card.Title style={styles.title}>{item.nombre}</Card.Title>
                 <Text style={{ margin: 20 }}>
                     {item.descripcion}
@@ -42,17 +41,39 @@ function RenderItem(props) {
 }
 
 class Home extends Component {
-
     constructor(props) {
         super(props);
+
         this.state = {
-            excursiones: EXCURSIONES,
-            cabeceras: CABECERAS,
-            actividades: ACTIVIDADES
+            excursiones: "",
+            cabeceras: "",
+            actividades: "",
+            loading: true,
         };
+
+        const request1 = axios.get('http://192.168.31.197:3001/excursiones');
+        const request2 = axios.get('http://192.168.31.197:3001/cabeceras');
+        const request3 = axios.get('http://192.168.31.197:3001/actividades');
+
+        axios.all([request1, request2, request3])
+            .then(axios.spread((response1, response2, response3) => {
+                this.setState({
+                    excursiones: response1.data,
+                    cabeceras: response2.data,
+                    actividades: response3.data,
+                    loading: false
+                });
+            }))
+            .catch(error => {
+                console.log(error);
+            });
     }
 
+
     render() {
+        if (this.state.loading) {
+            return <Text>Cargando...</Text>;
+        }
 
         return (
             <ScrollView>

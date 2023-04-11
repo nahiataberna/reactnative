@@ -2,8 +2,10 @@ import React, { Component } from 'react';
 import { Text, View, FlatList, ScrollView } from 'react-native';
 import { Card } from '@rneui/themed';
 import { HISTORIA } from '../comun/historia';
-import { ACTIVIDADES } from '../comun/actividades';
 import { ListItem, Avatar } from '@rneui/themed';
+import axios from 'axios';
+
+import { baseUrl } from '../comun/comun';
 
 function Historia(props) {
     const titulo = 'Un poquito de historia';
@@ -31,18 +33,36 @@ class QuienesSomos extends Component {
         super(props);
         this.state = {
             historia: HISTORIA,
-            actividades: ACTIVIDADES
+            actividades: '',
+            loading: true
         };
+
+        const request = axios.get('http://192.168.31.197:3001/actividades');
+
+        axios.all([request])
+            .then(axios.spread((response) => {
+                this.setState({
+                    historia: HISTORIA,
+                    actividades: response.data,
+                    loading: false
+                });
+            }))
+            .catch(error => {
+                console.log(error);
+            });
     }
 
     render() {
+        if (this.state.loading) {
+            return <Text>Cargando...</Text>;
+        }
 
         const renderActividadesItem = ({ item, index }) => {
             return (
                 <ListItem
                     key={index}
                     bottomDivider>
-                    <Avatar source={require('./imagenes/40Años.png')} />
+                    <Avatar source={{ uri: baseUrl + item.imagen }} />
                     <ListItem.Content>
                         <ListItem.Title>{item.nombre}</ListItem.Title>
                         <ListItem.Subtitle>{item.descripcion}</ListItem.Subtitle>

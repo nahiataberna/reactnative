@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { Text, View, ScrollView, FlatList } from 'react-native';
-import { COMENTARIOS } from '../comun/comentarios';
-import { EXCURSIONES } from '../comun/excursiones';
 import { StyleSheet } from 'react-native';
 import { ListItem } from '@rneui/base';
 import { Card, Icon } from '@rneui/themed';
+import axios from 'axios';
+import { baseUrl } from '../comun/comun';
+
 
 function RenderComentario(props) {
     const renderComentariosItem = ({ item, index }) => {
@@ -57,7 +58,7 @@ function RenderExcursion(props) {
     if (excursion != null) {
         return (
             <Card>
-                <Card.Image source={require('./imagenes/40Años.png')}></Card.Image>
+                <Card.Image source={{ uri: baseUrl + excursion.imagen }}></Card.Image>
                 <Card.Title style={styles.title}>{excursion.nombre}</Card.Title>
                 < Text style={{ margin: 20 }}>
                     {excursion.descripcion}
@@ -80,10 +81,27 @@ class DetalleExcursion extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            excursiones: EXCURSIONES,
-            comentarios: COMENTARIOS,
-            favoritos: []
+            excursiones: '',
+            comentarios: '',
+            favoritos: [],
+            loading: true
         };
+        const request1 = axios.get('http://192.168.31.197:3001/excursiones');
+        const request2 = axios.get('http://192.168.31.197:3001/comentarios');
+
+        axios.all([request1, request2])
+            .then(axios.spread((response1, response2) => {
+                this.setState({
+                    excursiones: response1.data,
+                    comentarios: response2.data,
+                    favoritos: [],
+                    loading: false
+                });
+            }))
+            .catch(error => {
+                console.log(error);
+            });
+
     }
 
     marcarFavorito(excursionId) {
@@ -93,6 +111,9 @@ class DetalleExcursion extends Component {
     }
 
     render() {
+        if (this.state.loading) {
+            return <Text>Cargando...</Text>;
+        }
         const { excursionId } = this.props.route.params;
         return (
             <ScrollView>

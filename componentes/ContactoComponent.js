@@ -3,7 +3,6 @@ import { Text, View } from 'react-native';
 import { Card } from '@rneui/themed';
 import { CONTACTO } from '../comun/contacto';
 
-
 function RenderContacto(props) {
 
     const contacto = props.contacto;
