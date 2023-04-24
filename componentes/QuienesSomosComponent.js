@@ -3,9 +3,15 @@ import { Text, View, FlatList, ScrollView } from 'react-native';
 import { Card } from '@rneui/themed';
 import { HISTORIA } from '../comun/historia';
 import { ListItem, Avatar } from '@rneui/themed';
-import axios from 'axios';
+import { connect } from 'react-redux';
 
 import { baseUrl } from '../comun/comun';
+
+const mapStateToProps = state => {
+    return {
+        actividades: state.actividades
+    }
+}
 
 function Historia(props) {
     const titulo = 'Un poquito de historia';
@@ -33,27 +39,11 @@ class QuienesSomos extends Component {
         super(props);
         this.state = {
             historia: HISTORIA,
-            actividades: '',
-            loading: true
         };
-
-        const request = axios.get('http://192.168.31.197:3001/actividades');
-
-        axios.all([request])
-            .then(axios.spread((response) => {
-                this.setState({
-                    historia: HISTORIA,
-                    actividades: response.data,
-                    loading: false
-                });
-            }))
-            .catch(error => {
-                console.log(error);
-            });
     }
 
     render() {
-        if (this.state.loading) {
+        if (this.props.actividades.loading) {
             return <Text>Cargando...</Text>;
         }
 
@@ -80,7 +70,7 @@ class QuienesSomos extends Component {
                     <Card.Divider />
                     <FlatList
                         scrollEnabled={false}
-                        data={this.state.actividades}
+                        data={this.props.actividades.actividades}
                         renderItem={renderActividadesItem}
                         keyExtractor={item => item.id.toString()}
                     />
@@ -91,4 +81,4 @@ class QuienesSomos extends Component {
     }
 }
 
-export default QuienesSomos;
+export default connect(mapStateToProps)(QuienesSomos);

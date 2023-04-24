@@ -3,8 +3,15 @@ import { Text, View, ScrollView, FlatList } from 'react-native';
 import { StyleSheet } from 'react-native';
 import { ListItem } from '@rneui/base';
 import { Card, Icon } from '@rneui/themed';
-import axios from 'axios';
 import { baseUrl } from '../comun/comun';
+import { connect } from 'react-redux';
+
+const mapStateToProps = state => {
+    return {
+        excursiones: state.excursiones,
+        comentarios: state.comentarios
+    }
+}
 
 
 function RenderComentario(props) {
@@ -81,27 +88,8 @@ class DetalleExcursion extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            excursiones: '',
-            comentarios: '',
-            favoritos: [],
-            loading: true
+            favoritos: []
         };
-        const request1 = axios.get('http://192.168.31.197:3001/excursiones');
-        const request2 = axios.get('http://192.168.31.197:3001/comentarios');
-
-        axios.all([request1, request2])
-            .then(axios.spread((response1, response2) => {
-                this.setState({
-                    excursiones: response1.data,
-                    comentarios: response2.data,
-                    favoritos: [],
-                    loading: false
-                });
-            }))
-            .catch(error => {
-                console.log(error);
-            });
-
     }
 
     marcarFavorito(excursionId) {
@@ -111,18 +99,18 @@ class DetalleExcursion extends Component {
     }
 
     render() {
-        if (this.state.loading) {
+        if (this.props.excursiones.loading || this.props.comentarios.loading) {
             return <Text>Cargando...</Text>;
         }
         const { excursionId } = this.props.route.params;
         return (
             <ScrollView>
-                <RenderExcursion excursion={this.state.excursiones[+excursionId]} onPress={() => this.marcarFavorito(excursionId)} favorita={this.state.favoritos.some(elemento => elemento === excursionId)} />
-                <RenderComentario comentarios={this.state.comentarios.filter((comentario) => comentario.excursionId === excursionId)} />
+                <RenderExcursion excursion={this.props.excursiones.excursiones[+excursionId]} onPress={() => this.marcarFavorito(excursionId)} favorita={this.state.favoritos.some(elemento => elemento === excursionId)} />
+                <RenderComentario comentarios={this.props.comentarios.comentarios.filter((comentario) => comentario.excursionId === excursionId)} />
 
             </ScrollView>
         );
     }
 }
 
-export default DetalleExcursion;
+export default connect(mapStateToProps)(DetalleExcursion);

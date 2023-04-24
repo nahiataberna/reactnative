@@ -1,33 +1,18 @@
 import React, { Component } from 'react';
 import { ListItem, Avatar } from '@rneui/themed';
 import { SafeAreaView, FlatList, Text } from 'react-native';
-import axios from 'axios';
 import { baseUrl } from '../comun/comun';
+import { connect } from 'react-redux';
+
+const mapStateToProps = state => {
+    return {
+        excursiones: state.excursiones
+    }
+}
 
 class Calendario extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            excursiones: '',
-            loading: true
-        };
-
-        const request = axios.get('http://192.168.31.197:3001/excursiones');
-
-        axios.all([request])
-            .then(axios.spread((response) => {
-                this.setState({
-                    excursiones: response.data,
-                    loading: false
-                });
-            }))
-            .catch(error => {
-                console.log(error);
-            });
-    }
-
     render() {
-        if (this.state.loading) {
+        if (this.props.excursiones.loading) {
             return <Text>Cargando...</Text>;
         }
 
@@ -51,7 +36,7 @@ class Calendario extends Component {
         return (
             <SafeAreaView>
                 <FlatList
-                    data={this.state.excursiones}
+                    data={this.props.excursiones.excursiones}
                     renderItem={renderCalendarioItem}
                     keyExtractor={item => item.id.toString()}
                 />
@@ -60,4 +45,4 @@ class Calendario extends Component {
     }
 }
 
-export default Calendario;
+export default connect(mapStateToProps)(Calendario);
