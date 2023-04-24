@@ -3,6 +3,7 @@ import { ListItem, Avatar } from '@rneui/themed';
 import { SafeAreaView, FlatList, Text } from 'react-native';
 import { baseUrl } from '../comun/comun';
 import { connect } from 'react-redux';
+import { IndicadorActividad } from './IndicadorActividadComponent';
 
 const mapStateToProps = state => {
     return {
@@ -13,7 +14,13 @@ const mapStateToProps = state => {
 class Calendario extends Component {
     render() {
         if (this.props.excursiones.isLoading) {
-            return <Text>Cargando...</Text>;
+            return <IndicadorActividad />;
+        }
+        else if (this.props.errMess) {
+            return (
+                <View>
+                    <Text>{props.errMess}</Text>
+                </View>);
         }
 
         const { navigate } = this.props.navigation;

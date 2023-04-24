@@ -62,6 +62,18 @@ class QuienesSomos extends Component {
         };
 
         const titulo = 'Actividades y recursos';
+        
+        if (this.props.actividades.isLoading) {
+            return (
+                <ScrollView>
+                    <Historia />
+                    <Card>
+                        <Card.Title>{titulo}</Card.Title> <Card.Divider />
+                        <IndicadorActividad />
+                    </Card>
+                </ScrollView>
+            );
+        }
         return (
             <ScrollView >
                 <Historia historia={this.state.historia[0]} />
