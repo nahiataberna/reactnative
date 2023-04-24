@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
-import { Text, View, ScrollView, FlatList } from 'react-native';
+import { Text, View, ScrollView, FlatList, Modal, TextInput, Button } from 'react-native';
 import { StyleSheet } from 'react-native';
 import { ListItem } from '@rneui/base';
-import { Card, Icon } from '@rneui/themed';
+import { Card, Icon, Input } from '@rneui/themed';
 import { baseUrl } from '../comun/comun';
 import { connect } from 'react-redux';
 import { postFavorito } from '../redux/ActionCreators';
+import { useState } from 'react';
+import { colorGaztaroaOscuro } from '../comun/comun';
+import { Rating } from 'react-native-ratings';
 
 const mapStateToProps = state => {
     return {
@@ -13,11 +16,12 @@ const mapStateToProps = state => {
         comentarios: state.comentarios,
         favoritos: state.favoritos
     }
-}
+};
 
 const mapDispatchToProps = dispatch => ({
     postFavorito: (excursionId) => dispatch(postFavorito(excursionId))
-})
+});
+
 
 
 function RenderComentario(props) {
@@ -54,6 +58,37 @@ function RenderExcursion(props) {
 
     const excursion = props.excursion;
 
+    const [modalVisible, setModalVisible] = useState(false);
+    const [nombre, setNombre] = useState('');
+    const [comentario, setComentario] = useState('');
+    const [rating, setRating] = useState(3);
+
+    const showModal = () => {
+        setModalVisible(true);
+    };
+
+    const hideModal = () => {
+        setModalVisible(false);
+        setNombre('');
+        setComentario('');
+        setRating(3);
+    };
+
+    const handleNombreChange = (text) => {
+        setNombre(text);
+    };
+
+    const handleComentarioChange = (text) => {
+        setComentario(text);
+    };
+    const handleSubmit = () => {
+        console.log(`Nombre: ${nombre}, Comentario: ${comentario},  Rating: ${rating}`);
+        hideModal();
+    };
+
+    ratingCompleted = (rating) => {
+        setRating(rating);
+    };
     const styles = StyleSheet.create({
         title: {
             position: 'absolute',
@@ -66,6 +101,27 @@ function RenderExcursion(props) {
             fontWeight: 'bold',
             textAlign: 'center',
         },
+        modalContainer: {
+            backgroundColor: '#fff',
+            padding: 20,
+            borderRadius: 10,
+            margin: 50,
+        },
+        modalTitle: {
+            fontSize: 20,
+            fontWeight: 'bold',
+            marginBottom: 10,
+        },
+        inputContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: 20,
+        },
+        buttonContainer: {
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+        },
+
     });
 
     if (excursion != null) {
@@ -76,12 +132,54 @@ function RenderExcursion(props) {
                 < Text style={{ margin: 20 }}>
                     {excursion.descripcion}
                 </Text>
-                <Icon //raised
-                    reverse
-                    name={props.favorita ? 'heart' : 'heart-o'}
-                    type='font-awesome'
-                    color='#f50'
-                    onPress={() => props.favorita ? console.log('La excursión ya se encuentra entre las favoritas') : props.onPress()} />
+                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                    <Icon //raised
+                        reverse
+                        name={props.favorita ? 'heart' : 'heart-o'}
+                        type='font-awesome'
+                        color='#f50'
+                        onPress={() => props.favorita ? console.log('La excursión ya se encuentra entre las favoritas') : props.onPress()} />
+                    <Icon //raised
+                        reverse
+                        name='pencil'
+                        type='font-awesome'
+                        color={colorGaztaroaOscuro}
+                        onPress={showModal} />
+                </View>
+
+                <Modal visible={modalVisible} animationType="slide">
+                    <View style={styles.modalContainer}>
+                        <View>
+                            <Rating
+                                showRating
+                                onFinishRating={this.ratingCompleted}
+                                style={{ paddingVertical: 10 }}
+                            />
+
+                        </View>
+                        <View style={styles.inputContainer}>
+                            <Icon name="user" type="font-awesome" color="#ccc" />
+                            <Input
+                                placeholder="Nombre"
+                                value={nombre}
+                                onChangeText={handleNombreChange}
+                            />
+                        </View>
+                        <View style={styles.inputContainer}>
+                            <Icon name="comment" type="font-awesome" color="#ccc" />
+                            <Input
+                                placeholder="Comentario"
+                                value={comentario}
+                                onChangeText={handleComentarioChange}
+                            />
+                        </View>
+                        <View style={styles.buttonContainer}>
+                            <Button title="Enviar" onPress={handleSubmit} />
+                            <Button title="Cancelar" onPress={hideModal} />
+                        </View>
+
+                    </View>
+                </Modal>
             </Card>
         );
     }
