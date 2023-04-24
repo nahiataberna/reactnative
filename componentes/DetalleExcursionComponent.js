@@ -5,7 +5,7 @@ import { ListItem } from '@rneui/base';
 import { Card, Icon, Input } from '@rneui/themed';
 import { baseUrl } from '../comun/comun';
 import { connect } from 'react-redux';
-import { postFavorito } from '../redux/ActionCreators';
+import { postFavorito, postComentario } from '../redux/ActionCreators';
 import { useState } from 'react';
 import { colorGaztaroaOscuro } from '../comun/comun';
 import { Rating } from 'react-native-ratings';
@@ -19,14 +19,15 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-    postFavorito: (excursionId) => dispatch(postFavorito(excursionId))
+    postFavorito: (excursionId) => dispatch(postFavorito(excursionId)),
+    postComentario: (excursionId, rating, nombre, comentario, dia) => dispatch(postComentario(excursionId, rating, nombre, comentario, dia)),
 });
 
 
 
 function RenderComentario(props) {
     const renderComentariosItem = ({ item, index }) => {
-        const parts = item.dia.split("T17");
+        const parts = item.dia.split("T");
         const fecha = parts[0];
         return (
             <ListItem
@@ -58,36 +59,32 @@ function RenderExcursion(props) {
 
     const excursion = props.excursion;
 
-    const [modalVisible, setModalVisible] = useState(false);
-    const [nombre, setNombre] = useState('');
-    const [comentario, setComentario] = useState('');
-    const [rating, setRating] = useState(3);
-
     const showModal = () => {
-        setModalVisible(true);
+        props.updateShowModal(true);
     };
 
     const hideModal = () => {
-        setModalVisible(false);
-        setNombre('');
-        setComentario('');
-        setRating(3);
+        props.updateShowModal(false);
+        props.updateNombre('');
+        props.updateComentario('');
+        props.updateRating(3);
     };
 
     const handleNombreChange = (text) => {
-        setNombre(text);
+        props.updateNombre(text);
     };
 
     const handleComentarioChange = (text) => {
-        setComentario(text);
+        props.updateComentario(text);
     };
     const handleSubmit = () => {
-        console.log(`Nombre: ${nombre}, Comentario: ${comentario},  Rating: ${rating}`);
         hideModal();
+        const fechaActual = new Date();
+        props.postComentario(excursion.id, props.rating, props.nombre, props.comentario, fechaActual.toISOString())
     };
 
     ratingCompleted = (rating) => {
-        setRating(rating);
+        props.updateRating(rating);
     };
     const styles = StyleSheet.create({
         title: {
@@ -147,7 +144,7 @@ function RenderExcursion(props) {
                         onPress={showModal} />
                 </View>
 
-                <Modal visible={modalVisible} animationType="slide">
+                <Modal visible={props.showModal} animationType="slide">
                     <View style={styles.modalContainer}>
                         <View>
                             <Rating
@@ -161,7 +158,7 @@ function RenderExcursion(props) {
                             <Icon name="user" type="font-awesome" color="#ccc" />
                             <Input
                                 placeholder="Nombre"
-                                value={nombre}
+                                value={props.nombre}
                                 onChangeText={handleNombreChange}
                             />
                         </View>
@@ -169,7 +166,7 @@ function RenderExcursion(props) {
                             <Icon name="comment" type="font-awesome" color="#ccc" />
                             <Input
                                 placeholder="Comentario"
-                                value={comentario}
+                                value={props.comentario}
                                 onChangeText={handleComentarioChange}
                             />
                         </View>
@@ -189,10 +186,30 @@ function RenderExcursion(props) {
 }
 
 class DetalleExcursion extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            rating: 3,
+            nombre: '',
+            comentario: '',
+            showModal: false
+        }
+    }
     marcarFavorito(excursionId) {
         this.props.postFavorito(excursionId);
     }
-
+    updateShowModal = (showModal) => {
+        this.setState({ showModal: showModal });
+    }
+    updateRating = (rating) => {
+        this.setState({ rating: rating });
+    }
+    updateComentario = (comentario) => {
+        this.setState({ comentario: comentario });
+    }
+    updateNombre = (nombre) => {
+        this.setState({ nombre: nombre });
+    }
     render() {
         if (this.props.excursiones.isLoading || this.props.comentarios.isLoading) {
             return <Text>Cargando...</Text>;
@@ -200,8 +217,21 @@ class DetalleExcursion extends Component {
         const { excursionId } = this.props.route.params;
         return (
             <ScrollView>
-                <RenderExcursion excursion={this.props.excursiones.excursiones[+excursionId]} onPress={() => this.marcarFavorito(excursionId)} favorita={this.props.favoritos.favoritos.some(el => el === excursionId)} />
-                <RenderComentario comentarios={this.props.comentarios.comentarios.filter((comentario) => comentario.excursionId === excursionId)} />
+                <RenderExcursion
+                    excursion={this.props.excursiones.excursiones[+excursionId]}
+                    onPress={() => this.marcarFavorito(excursionId)}
+                    favorita={this.props.favoritos.favoritos.some(el => el === excursionId)}
+                    rating={this.state.rating}
+                    nombre={this.state.nombre}
+                    comentario={this.state.comentario}
+                    showModal={this.state.showModal}
+                    updateShowModal={this.updateShowModal}
+                    updateRating={this.updateRating}
+                    updateComentario={this.updateComentario}
+                    updateNombre={this.updateNombre}
+                    postComentario={this.props.postComentario} />
+                <RenderComentario
+                    comentarios={this.props.comentarios.comentarios.filter((comentario) => comentario.excursionId === excursionId)} />
 
             </ScrollView>
         );
