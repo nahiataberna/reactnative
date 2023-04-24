@@ -99,7 +99,7 @@ class DetalleExcursion extends Component {
     }
 
     render() {
-        if (this.props.excursiones.loading || this.props.comentarios.loading) {
+        if (this.props.excursiones.isLoading || this.props.comentarios.isLoading) {
             return <Text>Cargando...</Text>;
         }
         const { excursionId } = this.props.route.params;

@@ -12,7 +12,7 @@ const mapStateToProps = state => {
 
 class Calendario extends Component {
     render() {
-        if (this.props.excursiones.loading) {
+        if (this.props.excursiones.isLoading) {
             return <Text>Cargando...</Text>;
         }
 

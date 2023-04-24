@@ -49,7 +49,7 @@ function RenderItem(props) {
 
 class Home extends Component {
     render() {
-        if (this.props.excursiones.loading || this.props.cabeceras.loading || this.props.actividades.loading) {
+        if (this.props.excursiones.isLoading || this.props.cabeceras.isLoading || this.props.actividades.isLoading) {
             return <Text>Cargando...</Text>;
         }
 

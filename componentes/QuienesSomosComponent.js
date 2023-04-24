@@ -43,7 +43,7 @@ class QuienesSomos extends Component {
     }
 
     render() {
-        if (this.props.actividades.loading) {
+        if (this.props.actividades.isLoading) {
             return <Text>Cargando...</Text>;
         }
 
